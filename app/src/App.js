@@ -1,7 +1,7 @@
 import { useState } from "react";
 import './style/convert.css'
 import uploadIMG from './style/upload.png'
-import { parse } from "./tXml.js";
+import { parse, simplify } from "./tXml.js";
 
 const App = () => {
   const [formState, setFormState] = useState(true)
@@ -10,38 +10,6 @@ const App = () => {
   let data = [];
   let xmlFile;
   let fileReader;
-
-  function simplify(children) {
-    var out = { };
-    if (!children.length) {
-      return '';
-    }
-
-    if (children.length === 1 && typeof children[0] == 'string') {
-      return children[0];
-    }
-    // map each object
-    children.forEach(function (child) {
-      if (typeof child !== 'object') {
-        return;
-      }
-      if (!out[child.tagName])
-        out[child.tagName] = [];
-      var kids = simplify(child.children);
-      out[child.tagName].push(kids);
-      if (Object.keys(child.attributes).length) {
-        kids._attributes = child.attributes;
-      }
-    });
-
-    for (var i in out) {
-      if (out[i].length == 1) {
-        out[i] = out[i][0];
-      }
-    }
-
-    return out;
-  };
 
   const handleFileRead = () => {
     const content = fileReader.result; // we receive the file passed into FileReader

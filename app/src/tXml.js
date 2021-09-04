@@ -355,36 +355,41 @@ export function parse(S, options) {
  * @param {tNode[]} children the childrenList
  */
 export function simplify(children) {
-    var out = { };
-    if (!children.length) {
-        return '';
-    }
+    try {
 
-    if (children.length === 1 && typeof children[0] == 'string') {
-        return children[0];
-    }
-    // map each object
-    children.forEach(function (child) {
-        console.log(child)
-        if (typeof child !== 'object') {
-            return;
+        var out = { };
+        if (!children.length) {
+            return '';
         }
-        if (!out[child.tagName])
-            out[child.tagName] = [];
-        var kids = simplify(child.children);
-        out[child.tagName].push(kids);
-        if (Object.keys(child.attributes).length) {
-            kids._attributes = child.attributes;
-        }
-    });
 
-    for (var i in out) {
-        if (out[i].length == 1) {
-            out[i] = out[i][0];
+        if (children.length === 1 && typeof children[0] == 'string') {
+            return children[0];
         }
-    }
+        // map each object
+        children.forEach(function (child) {
+            if (typeof child !== 'object') {
+                return;
+            }
+            if (!out[child.tagName])
+                out[child.tagName] = [];
+            var kids = simplify(child.children);
+            out[child.tagName].push(kids);
+            if (Object.keys(child.attributes).length) {
+                kids._attributes = child.attributes;
+            }
+        });
 
-    return out;
+        for (var i in out) {
+            if (out[i].length == 1) {
+                out[i] = out[i][0];
+            }
+        }
+
+        return out;
+    }
+    catch (e) {
+        return Error
+    };
 };
 
 
