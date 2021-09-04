@@ -1,7 +1,7 @@
 import { useState } from "react";
 import './style/convert.css'
 import uploadIMG from './style/upload.png'
-const txml = require('txml');
+import { parse } from "./tXml.js";
 
 const App = () => {
   const [formState, setFormState] = useState(true)
@@ -11,17 +11,52 @@ const App = () => {
   let xmlFile;
   let fileReader;
 
+  function simplify(children) {
+    var out = { };
+    if (!children.length) {
+      return '';
+    }
+
+    if (children.length === 1 && typeof children[0] == 'string') {
+      return children[0];
+    }
+    // map each object
+    children.forEach(function (child) {
+      if (typeof child !== 'object') {
+        return;
+      }
+      if (!out[child.tagName])
+        out[child.tagName] = [];
+      var kids = simplify(child.children);
+      out[child.tagName].push(kids);
+      if (Object.keys(child.attributes).length) {
+        kids._attributes = child.attributes;
+      }
+    });
+
+    for (var i in out) {
+      if (out[i].length == 1) {
+        out[i] = out[i][0];
+      }
+    }
+
+    return out;
+  };
+
   const handleFileRead = () => {
     const content = fileReader.result; // we receive the file passed into FileReader
-    xmlFile = txml.simplify(txml.parse(content)) // parsing and simplifying the xml data to make the data arrays with objects within them.
+    const xmlData = parse(content)
+    xmlFile = simplify(xmlData[1]?.children)
+    console.log(xmlFile)
+    // parsing and simplifying the xml data to make the data arrays with objects within them.
     data.push(dataHeaders); // we sets the headers for our csv file here
     try {
-      xmlFile.Table_Facility.T_Facility.forEach((facility) => {
+      xmlFile.T_Facility.forEach((facility) => {
         let metadata = [];
         let previousDate;
         let nextDate;
-        //Turnery operations for data we are looking for; does this data exists ? if so push data into metadata array : if not push in an empty string
 
+        //Turnery operations for data we are looking for; does this data exists ? if so push data into metadata array : if not push in an empty string
         facility.Facility_ID ? metadata.push(facility.Facility_ID) : metadata.push(""); //property_id
         facility.Facility_Account_Number ? metadata.push(facility.Facility_Account_Number) : metadata.push(""); //account_number
         facility.Facility_Name ? metadata.push(facility.Facility_Name) : metadata.push(""); //name
@@ -54,7 +89,6 @@ const App = () => {
         data.push(metadata); // Put all the data together
       });
 
-
       let csvContent = ""
         + data.map(e => e.join(",")).join("\n");
       // we join all arrays into strings from our data array passying them in to csvContent
@@ -71,14 +105,14 @@ const App = () => {
       secondaryLink.target = '_blank'
       link.download = "converted" + '.csv';
       if (errors) {
-        setErrors(null)
+        setErrors(null) //if errors we're present before this is where we reset them
       }
-      setFormState(false)
+      setFormState(false) // change what is rendered in jsx based on setFormState property
     }
     catch (e) {
       setErrors("Incorrect file type imported")
       console.log(e)
-    }
+    };
   };
 
   const handleUpload = (file) => {
@@ -86,6 +120,7 @@ const App = () => {
     fileReader.onloadend = handleFileRead; // Once we finish reading the data, the assigned function will be invoke
     fileReader.readAsText(file); // We feed our uploaded file into the File Reader which will invoke our handleFileRead function passing in the file.
   };
+
   const newConversion = () => {
     setFormState(true);
   };
