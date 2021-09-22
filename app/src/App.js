@@ -5,7 +5,7 @@ import { parse, simplify } from "./tXml.js";
 
 const App = () => {
   const [formState, setFormState] = useState(true)
-  const [formColumns, setFormColumns] = useState(false);
+  const [formHeaders, setFormHeaders] = useState(null);
   const [errors, setErrors] = useState(null);
   const dataHeaders = ['property_id', 'account_number', 'name', 'address1', 'address2', 'city', 'state_prov', "country_code", 'postal_code', 'primary_contact_id ', 'notes', 'survery_compliance', 'last_survey', 'next_survey'];
   let allColumns = [];
@@ -17,7 +17,6 @@ const App = () => {
     const content = fileReader.result; // we receive the file passed into FileReader
     const xmlData = parse(content)
     xmlFile = simplify(xmlData[1]?.children)
-    console.log(xmlFile)
     // parsing and simplifying the xml data to make the data arrays with objects within them.
     data.push(dataHeaders); // we sets the headers for our csv file here
     try {
@@ -79,10 +78,7 @@ const App = () => {
       }
       setFormState(false) // change what is rendered in jsx based on setFormState property
       allColumns.sort()
-      if (formColumns === false) {
-        setFormColumns(true);
-      };
-      console.log(allColumns)
+      setFormHeaders(allColumns);
     }
     catch (e) {
       setErrors("Incorrect file type imported")
@@ -118,10 +114,16 @@ const App = () => {
           <div className='post-download-container'>
             <label className='after-download'>Thank you for using XML to CSV converter by Gary Rios</label>
             <button className='myButton' onClick={newConversion}>Convert another file</button>
-            <ul>
+            <ul className='form-headers'>
               {
-                allColumns.map((column) => {
-                  <li>{column}</li>
+                formHeaders &&
+                formHeaders.map((column) => {
+                  return (
+                    <li key='simple-li'>
+                      <input type='radio' className='radio-simple' />
+                      {column}
+                    </li>
+                  )
                 })
               }
             </ul>

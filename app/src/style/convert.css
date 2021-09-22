@@ -65,3 +65,17 @@ width: 20px;
 	position:relative;
 	top:1px;
 }
+ul {
+    position: absolute;
+    margin-top: 80px;
+    height: 400px;
+    width: 300px;
+    overflow-y: scroll;
+    background-color: white;
+    text-decoration: none;
+}
+
+.radio-simple:hover{
+    cursor: pointer;
+}
+li {list-style-type: none;}
