@@ -5,8 +5,10 @@ import { parse, simplify } from "./tXml.js";
 
 const App = () => {
   const [formState, setFormState] = useState(true)
+  const [formColumns, setFormColumns] = useState(false);
   const [errors, setErrors] = useState(null);
   const dataHeaders = ['property_id', 'account_number', 'name', 'address1', 'address2', 'city', 'state_prov', "country_code", 'postal_code', 'primary_contact_id ', 'notes', 'survery_compliance', 'last_survey', 'next_survey'];
+  let allColumns = [];
   let data = [];
   let xmlFile;
   let fileReader;
@@ -23,7 +25,11 @@ const App = () => {
         let metadata = [];
         let previousDate;
         let nextDate;
-
+        for (const column in facility) {
+          if (!allColumns.includes(column)) {
+            allColumns.push(column);
+          };
+        }
         //Turnery operations for data we are looking for; does this data exists ? if so push data into metadata array : if not push in an empty string
         facility.Facility_ID ? metadata.push(facility.Facility_ID) : metadata.push(""); //property_id
         facility.Facility_Account_Number ? metadata.push(facility.Facility_Account_Number) : metadata.push(""); //account_number
@@ -68,14 +74,15 @@ const App = () => {
       link.download = "converted" + '.csv'; //we name the file "converted" and add the .csv extension
       link.click(); // we click our own element to download our sourced file.
 
-      let secondaryLink = document.querySelectorAll('dl-link')
-      secondaryLink.href = csvUrl;
-      secondaryLink.target = '_blank'
-      link.download = "converted" + '.csv';
       if (errors) {
         setErrors(null) //if errors we're present before this is where we reset them
       }
       setFormState(false) // change what is rendered in jsx based on setFormState property
+      allColumns.sort()
+      if (formColumns === false) {
+        setFormColumns(true);
+      };
+      console.log(allColumns)
     }
     catch (e) {
       setErrors("Incorrect file type imported")
@@ -111,6 +118,13 @@ const App = () => {
           <div className='post-download-container'>
             <label className='after-download'>Thank you for using XML to CSV converter by Gary Rios</label>
             <button className='myButton' onClick={newConversion}>Convert another file</button>
+            <ul>
+              {
+                allColumns.map((column) => {
+                  <li>{column}</li>
+                })
+              }
+            </ul>
           </div>
       }
       {errors &&
