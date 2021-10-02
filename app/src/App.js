@@ -3,6 +3,8 @@ import './style/convert.css'
 import uploadIMG from './style/upload.png'
 import { parse, simplify } from "./tXml.js";
 
+//update notes, we will be keeping uploading the same, instead we will be changing second part to include headers you want in the file and a button attached to download only selected headers
+
 const App = () => {
   const [formState, setFormState] = useState(true)
   const [formHeaders, setFormHeaders] = useState(null);
