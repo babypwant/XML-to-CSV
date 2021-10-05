@@ -8,6 +8,7 @@ import { parse, simplify } from "./tXml.js";
 const App = () => {
   const [formState, setFormState] = useState(true)
   const [formHeaders, setFormHeaders] = useState(null);
+  const [userFile, setUserFile] = useState(null);
   const [errors, setErrors] = useState(null);
   const dataHeaders = ['property_id', 'account_number', 'name', 'address1', 'address2', 'city', 'state_prov', "country_code", 'postal_code', 'primary_contact_id ', 'notes', 'survery_compliance', 'last_survey', 'next_survey'];
   let allColumns = [];
@@ -19,6 +20,7 @@ const App = () => {
     const content = fileReader.result; // we receive the file passed into FileReader
     const xmlData = parse(content)
     xmlFile = simplify(xmlData[1]?.children)
+    setUserFile(xmlFile.T_Facility);
     // parsing and simplifying the xml data to make the data arrays with objects within them.
     data.push(dataHeaders); // we sets the headers for our csv file here
     try {
@@ -64,16 +66,16 @@ const App = () => {
         data.push(metadata); // Put all the data together
       });
 
-      let csvContent = ""
-        + data.map(e => e.join(",")).join("\n");
-      // we join all arrays into strings from our data array passying them in to csvContent
-      let csvData = new Blob([csvContent], { type: 'text/csv' }); // pass in the string data into a blob object and specify the data type
-      let csvUrl = URL.createObjectURL(csvData); // convert the blob into a URL string which can be attached to an <a> tag
-      let link = document.createElement('a'); // we create an anchor element so we can attach an the our new csv file to it as the source
-      link.href = csvUrl; // link the csv file
-      link.target = '_blank'; //opens new tab to download
-      link.download = "converted" + '.csv'; //we name the file "converted" and add the .csv extension
-      link.click(); // we click our own element to download our sourced file.
+      // let csvContent = ""
+      //   + data.map(e => e.join(",")).join("\n");
+      // // we join all arrays into strings from our data array passying them in to csvContent
+      // let csvData = new Blob([csvContent], { type: 'text/csv' }); // pass in the string data into a blob object and specify the data type
+      // let csvUrl = URL.createObjectURL(csvData); // convert the blob into a URL string which can be attached to an <a> tag
+      // let link = document.createElement('a'); // we create an anchor element so we can attach an the our new csv file to it as the source
+      // link.href = csvUrl; // link the csv file
+      // link.target = '_blank'; //opens new tab to download
+      // link.download = "converted" + '.csv'; //we name the file "converted" and add the .csv extension
+      // link.click(); // we click our own element to download our sourced file.
 
       if (errors) {
         setErrors(null) //if errors we're present before this is where we reset them
@@ -98,32 +100,31 @@ const App = () => {
     setFormState(true);
   };
 
+  const downloadButtonFuction = () => {
+    console.log(userFile);  
+    //bug fixes and download funciton button not being used anymore 
+    dsadz
+  };
+
   return (
     <div className="app">
       {
         formState ?
           <div className='upload-file-form'>
             <label className='image-header'> Upload XML file</label>
-            <label className='upload-label'>
+            <label className='upload-label' />
               <img src={uploadIMG} className='upload-img' />
               <input
                 type="file"
-                onChange={(e) => handleUpload(e.target.files[0])}
-              />
-            </label>
-          </div>
-          :
-          <div className='post-download-container'>
-            <label className='after-download'>Thank you for using XML to CSV converter by Gary Rios</label>
-            <button className='myButton' onClick={newConversion}>Convert another file</button>
-            <ul className='form-headers'>
+                onChange={(e) => handleUpload(e.target.files[0])} />
+                <ul>
               {
                 formHeaders &&
                 formHeaders.map((column) => {
                   return (
                     <li key='simple-li'>
-                      <input type='radio' className='radio-simple' />
-                      {column}
+                      <input type='radio' className='radio-simple'>{column}</input>
+
                     </li>
                   )
                 })
